@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Defines function that creates a vanilla autoencoder
+Defines function that creates a sparse autoencoder
 """
 
 
 import tensorflow.keras as keras
 
 
-def autoencoder(input_dims, hidden_layers, latent_dims):
+def autoencoder(input_dims, hidden_layers, latent_dims, lambtha):
     """
-    Creates a "vanilla" autoencoder
+    Creates a sparse autoencoder
 
     parameters:
         input_dims [int]:
@@ -19,6 +19,9 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
                 the hidden layers should be reversed for the decoder
         latent_dims [int]:
             contains the dimensions of the latent space representation
+
+        lambtha [float]:
+            L1 regularization parameter for the encoded output
 
     All layers should use relu activation except for last layer
     Last layer should use sigmoid activation
@@ -53,8 +56,9 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         encoder_layer = keras.layers.Dense(units=hidden_layers[i],
                                            activation='relu')
         encoder_value = encoder_layer(encoder_value)
-    encoder_output_layer = keras.layers.Dense(units=latent_dims,
-                                              activation='relu')
+    encoder_output_layer = keras.layers.Dense(
+        units=latent_dims, activation='relu',
+        activity_regularizer=keras.regularizers.l1(lambtha))
     encoder_outputs = encoder_output_layer(encoder_value)
     encoder = keras.Model(inputs=encoder_inputs, outputs=encoder_outputs)
 
