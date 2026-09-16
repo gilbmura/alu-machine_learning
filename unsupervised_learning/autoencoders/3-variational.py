@@ -27,8 +27,10 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     def sampling(args):
         """Sample a latent vector using the reparameterization trick."""
         mean, log_var = args
+        batch = keras.backend.shape(mean)[0]
+        dim = keras.backend.int_shape(mean)[1]
         epsilon = keras.backend.random_normal(
-            shape=keras.backend.shape(mean))
+            shape=(batch, dim))
         return mean + keras.backend.exp(0.5 * log_var) * epsilon
 
     z = keras.layers.Lambda(sampling, output_shape=(latent_dims,))(
@@ -42,7 +44,8 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     outputs = keras.layers.Dense(input_dims, activation='sigmoid')(decoded)
     decoder = keras.Model(decoder_inputs, outputs)
 
-    auto = keras.Model(inputs, decoder(z))
+    latent, mean, log_var = encoder(inputs)
+    auto = keras.Model(inputs, decoder(latent))
 
     def vae_loss(x, reconstruction):
         """Combine reconstruction error and latent KL divergence."""
@@ -51,8 +54,8 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
         reconstruction_loss = keras.backend.sum(
             reconstruction_loss, axis=-1)
         kl_loss = -0.5 * keras.backend.sum(
-            1 + z_log_var - keras.backend.square(z_mean)
-            - keras.backend.exp(z_log_var), axis=-1)
+            1 + log_var - keras.backend.square(mean)
+            - keras.backend.exp(log_var), axis=-1)
         return reconstruction_loss + kl_loss
 
     auto.compile(optimizer='adam', loss=vae_loss)
