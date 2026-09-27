@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "supervised_learning",
+		"path": ".."
+	},
+	{
+		"name": "regularization",
+		"path": "../../../Downloads/alu-machine_learning-main/alu-machine_learning-main/supervised_learning/regularization"
+	}
+],
+  "settings": {}
+}
